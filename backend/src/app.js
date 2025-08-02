@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",                        // local frontend
-  "dev-match-flax.vercel.app",     // deployed Vercel URL (replace this)
+  "dev-match-ynxo.vercel.app",     // deployed Vercel URL (replace this)
 ];
 
 app.use(
