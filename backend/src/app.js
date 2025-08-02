@@ -25,8 +25,10 @@ app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",                        // local frontend
-  "https://dev-tinder-fuzq.vercel.app",     // deployed Vercel URL (replace this)
+  "",     // deployed Vercel URL (replace this)
 ];
+
+//hiii
 
 app.use(
   cors({
