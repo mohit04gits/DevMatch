@@ -3,13 +3,14 @@ const { Chat } = require("../model/chat");
 const initializeSocket = (server) => {
   const io = socket(server, {
     cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://dev-tinder-fuzq.vercel.app",  // <— allow your Vercel URL
-    ],
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
+      origin: [
+        "http://localhost:5173",
+        "https://dev-match-bdrq.vercel.app",
+        "https://dev-match-ynxo.vercel.app/" // <— allow your Vercel URL
+      ],
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
   });
   io.on("connection", (socket) => {
     //handle events

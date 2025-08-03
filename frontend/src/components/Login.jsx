@@ -3,7 +3,7 @@ import axios from "axios";
 import { addUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
 import { BASE_URL } from "../utils/constants";
-import { Link, useNavigate } from "react-router-dom";
+import {Link,  useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [emailId, setEmailId] = useState("sachin@google.com");

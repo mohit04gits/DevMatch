@@ -16,7 +16,7 @@ const paymentRouter = require("./routes/payment");
 const chatRouter = require("./routes/chat"); // ✅ no destructuring
 
 require("dotenv").config();
-
+//socket connection
 const server = http.createServer(app);
 initializeSocket(server); //calling with server
 
@@ -25,7 +25,8 @@ app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",                        // local frontend
-  "https://dev-match-ynxo.vercel.app",     // deployed Vercel URL (replace this)
+  "https://dev-match-ynxo.vercel.app",
+  "https://dev-match-ynxo.vercel.app"     // deployed Vercel URL (replace this)
 ];
 
 app.use(
@@ -49,7 +50,6 @@ app.use("/",userRouter)
 app.patch("/user/:userId", async (req, res) => {
   const userId = req.params?.userId;
   const data = req.body;
-
   try {
     const Allowed_Updates = ["skills", "about", "age", "gender"];
     const isUpdateAllowed = Object.keys(data).every((key) =>
