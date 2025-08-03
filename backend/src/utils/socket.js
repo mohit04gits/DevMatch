@@ -5,7 +5,7 @@ const initializeSocket = (server) => {
     cors: {
     origin: [
       "http://localhost:5173",
-      "https://dev-tinder-fuzq.vercel.app",  // <— allow your Vercel URL
+      "https://dev-match-bdrq.vercel.app",  // <— allow your Vercel URL
     ],
     methods: ["GET", "POST"],
     credentials: true,
