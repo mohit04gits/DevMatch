@@ -26,7 +26,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",                        // local frontend
   "https://dev-match-ynxo.vercel.app",  
-  "https://dev-match-ynxo.vercel.app"// deployed Vercel URL (replace this)
+  "https://dev-match-flax.vercel.app"// deployed Vercel URL (replace this)
 ];
 
 //hiii
