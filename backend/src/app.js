@@ -24,28 +24,27 @@ initializeSocket(server); //calling with server
 app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
-  "http://localhost:5173",                        // local frontend
+  "http://localhost:5173",
   "https://dev-match-ynxo.vercel.app",
-  "https://dev-match-ynxo.vercel.app"     // deployed Vercel URL (replace this)
+  "https://dev-match-flax.vercel.app",
 ];
+
+//hiii
 
 app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Add PATCH here
-  })
+  }),
 );
-;
-
 // Routes
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", paymentRouter);
 app.use("/", chatRouter);
-app.use("/",userRouter)
-
+app.use("/", userRouter);
 
 app.patch("/user/:userId", async (req, res) => {
   const userId = req.params?.userId;
@@ -53,7 +52,7 @@ app.patch("/user/:userId", async (req, res) => {
   try {
     const Allowed_Updates = ["skills", "about", "age", "gender"];
     const isUpdateAllowed = Object.keys(data).every((key) =>
-      Allowed_Updates.includes(key)
+      Allowed_Updates.includes(key),
     );
 
     if (!isUpdateAllowed) {
