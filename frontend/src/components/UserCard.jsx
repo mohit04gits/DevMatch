@@ -1,155 +1,180 @@
-// import axios from "axios";
-// import { BASE_URL } from "../utils/constants";
-// import { useDispatch } from "react-redux";
-// import { removeUserFromFeed } from "../utils/feedSlice";
-
-// const UserCard = ({ user }) => {
-//   // eslint-disable-next-line react/prop-types
-//   const { _id, firstName, lastName, photoUrl, age, gender, about } = user;
-//   const dispatch = useDispatch();
-//   const handleSendRequest = async (status, userId) => {
-//     try {
-//       const res = await axios.post(
-//         BASE_URL + "/request/send/" + status + "/" + userId,
-//         {},
-//         { withCredentials: true }
-//       ); // we have to pass empty objecet as an second parameter as it is an post call chatgpt
-//       dispatch(removeUserFromFeed(userId));
-//     } catch (err) {
-//       console.log(err.message)
-//     }
-//   };
-
-//   return (
-//     <div className="flex  flex-col card shadow-blue-600 bg-base-100 shadow-sm w-80 h-[500px]">
-//       {/* Set fixed height for consistent display */}
-
-//       {/* Image Section */}
-//       <div className="flex-2 h-2/3">
-//         {" "}
-//         {/* Ensures image takes 2/3 of the card height */}
-//         <img
-//           className="w-full h-full object-cover rounded-t-lg"
-//           src={photoUrl}
-//           alt={`${firstName} ${lastName}`}
-//         />
-//       </div>
-
-//       {/* Card Body */}
-//       <div className="card-body flex-1 h-1/3 flex flex-col justify-between">
-//         <div>
-//           <h2 className="card-title">{firstName + " " + lastName}</h2>
-//           {age && gender && <p>{age + " , " + gender}</p>}
-//           <p className="text-sm">{about}</p>
-//         </div>
-//         <div className="card-actions flex justify-center mt-2">
-//           <button
-//             className="btn btn-primary"
-//             onClick={() => handleSendRequest("ignored", _id)}
-//           >
-//             Ignore
-//           </button>
-//           <button
-//             className="btn btn-secondary"
-//             onClick={() => handleSendRequest("interested", _id)}
-//           >
-//             Interested
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UserCard;
-
+/* eslint-disable react/prop-types -- React 19 no longer runs function-component propTypes; props retain the existing API shape. */
+import { useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch } from "react-redux";
 import { removeUserFromFeed } from "../utils/feedSlice";
-import { FaHeart, FaTimes } from "react-icons/fa";
+import {
+  FaUserPlus,
+  FaTimes,
+  FaCode,
+  FaSpinner,
+} from "react-icons/fa";
 
 const UserCard = ({ user }) => {
-  const { _id, firstName, lastName, age, gender, about, skills = [] } = user;
-  const dispatch = useDispatch();
+  const {
+    _id,
+    firstName,
+    lastName,
+    age,
+    gender,
+    about,
+    skills = [],
+    photoUrl,
+  } = user;
 
-  const handleSendRequest = async (status, userId) => {
+  const dispatch = useDispatch();
+  const [loadingAction, setLoadingAction] = useState("");
+  const [error, setError] = useState("");
+  const [imageFailed, setImageFailed] = useState(false);
+
+  const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  const initials = `${firstName?.[0] || "D"}${lastName?.[0] || ""}`.toUpperCase();
+
+  const handleSendRequest = async (status) => {
+    if (loadingAction) return;
+
+    setLoadingAction(status);
+    setError("");
+
     try {
       await axios.post(
-        BASE_URL + "/request/send/" + status + "/" + userId,
+        `${BASE_URL}/request/send/${status}/${_id}`,
         {},
         { withCredentials: true }
       );
-      dispatch(removeUserFromFeed(userId));
+
+      dispatch(removeUserFromFeed(_id));
     } catch (err) {
-      console.log(err.message);
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoadingAction("");
     }
   };
 
   return (
-    <div className="w-[90%] max-w-sm rounded-2xl bg-gradient-to-b from-[#121826] to-[#1f2937] shadow-lg p-4 text-white border border-gray-700 relative">
-      {/* Avatar */}
-      <div className="relative w-full h-64 mb-4 rounded-xl overflow-hidden bg-gradient-to-b from-purple-700 to-purple-900 flex justify-center items-center">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-          alt="avatar"
-          className="w-32 h-32 opacity-60"
-        />
-        <span className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border border-white"></span>
-        <span className="absolute bottom-2 left-2 w-3 h-3 bg-yellow-400 rounded-full border border-white"></span>
-      </div>
-
-      {/* Info */}
-      <div className="mb-2">
-        <div className="text-xl font-semibold capitalize">
-          {firstName} <span className="font-normal">{lastName}</span>
-        </div>
-        {gender && age && (
-          <div className="inline-flex items-center text-sm bg-purple-700 px-3 py-1 rounded-full mt-1">
-            ● {gender} · {age}
-          </div>
-        )}
-        <p className="mt-3 text-gray-300 text-sm">
-          {about || "No bio available"}
-        </p>
-      </div>
-
-      {/* Skills */}
-      <div className="mt-4">
-        <h4 className="text-sm font-semibold text-white mb-1">Skills & Tech</h4>
-        {skills.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <span
-                key={index}
-                className="text-xs bg-gray-700 px-2 py-1 rounded-md"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
+    <article className="dm-developer-card group w-full max-w-[430px] overflow-hidden rounded-2xl border border-white/[0.09] bg-[#11141B] text-[#F3F4F6] shadow-[0_20px_70px_rgba(0,0,0,0.22)] transition-colors duration-300 hover:border-white/[0.14]">
+      {/* Profile image */}
+      <div className="relative h-[280px] overflow-hidden bg-[#181C27] sm:h-[320px]">
+        {photoUrl && !imageFailed ? (
+          <img
+            src={photoUrl}
+            alt={`${fullName || "Developer"}'s profile`}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
-          <p className="text-sm italic text-gray-400">No skills listed</p>
+          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(ellipse_at_center,_#29243D_0%,_#191C29_48%,_#11141B_100%)]">
+            <div className="flex h-24 w-24 items-center justify-center rounded-[28px] border border-violet-300/20 bg-violet-300/[0.07] text-3xl font-semibold tracking-tight text-violet-200">
+              {initials}
+            </div>
+          </div>
         )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-[#11141B] via-black/10 to-black/20" />
+
+        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/10 bg-[#0B0D12]/70 px-3 py-1.5 text-xs font-medium text-[#E6E9F2] backdrop-blur-md">
+          <FaCode className="text-violet-300" />
+          Developer
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-5">
+          <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-[28px]">
+            {fullName || "Developer"}
+          </h2>
+
+          {(age || gender) && (
+            <p className="mt-1.5 text-sm text-white/75">
+              {[age, gender].filter(Boolean).join(" · ")}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Buttons */}
-      <div className="mt-6 flex justify-between gap-4">
-        <button
-          className="flex-1 bg-transparent border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 px-4 py-2 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md bg-opacity-10"
-          onClick={() => handleSendRequest("ignored", _id)}
-        >
-          <FaTimes /> Pass
-        </button>
+      {/* Details */}
+      <div className="p-5 sm:p-6">
+        <section>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-300">
+            About
+          </p>
 
-        <button
-          className="flex-1 bg-transparent border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-200 px-4 py-2 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md bg-opacity-10"
-          onClick={() => handleSendRequest("interested", _id)}
-        >
-          <FaHeart /> Like
-        </button>
+          <p className="mt-2 min-h-[48px] whitespace-pre-line break-words text-sm leading-6 text-[#A9B1C3]">
+            {about || "This developer hasn't added an introduction yet."}
+          </p>
+        </section>
+
+        <section className="mt-6 border-t border-white/[0.07] pt-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-[#E6E9F2]">
+              Tech stack
+            </h3>
+            <span className="text-xs text-[#737D92]">
+              {skills.length} {skills.length === 1 ? "skill" : "skills"}
+            </span>
+          </div>
+
+          {skills.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <span
+                  key={`${skill}-${index}`}
+                  className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1.5 text-xs font-medium text-[#C5CCDA] transition-colors hover:border-violet-300/25 hover:text-violet-200"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-[#737D92]">
+              No skills added yet.
+            </p>
+          )}
+        </section>
+
+        {error && (
+          <p
+            role="alert"
+            className="mt-5 rounded-xl border border-red-400/20 bg-red-400/[0.07] px-3.5 py-3 text-sm leading-5 text-red-300"
+          >
+            {error}
+          </p>
+        )}
+
+        {/* Existing request actions */}
+        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/[0.07] pt-5">
+          <button
+            type="button"
+            disabled={Boolean(loadingAction)}
+            onClick={() => handleSendRequest("ignored")}
+            className="flex h-11 items-center justify-center gap-2 rounded-xl border border-white/[0.11] bg-transparent text-sm font-medium text-[#B7BECC] transition-colors hover:border-red-300/30 hover:bg-red-400/[0.07] hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loadingAction === "ignored" ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
+              <FaTimes />
+            )}
+            Skip
+          </button>
+
+          <button
+            type="button"
+            disabled={Boolean(loadingAction)}
+            onClick={() => handleSendRequest("interested")}
+            className="flex h-11 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 text-sm font-semibold text-[#111018] transition-colors hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loadingAction === "interested" ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
+              <FaUserPlus />
+            )}
+            Connect
+          </button>
+        </div>
       </div>
-    </div>
+    </article>
   );
 };
 

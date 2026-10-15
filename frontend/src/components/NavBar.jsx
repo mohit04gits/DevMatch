@@ -1,115 +1,192 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import axios from "axios";
 import { removeUser } from "../utils/userSlice";
 import { useState, useEffect, useRef } from "react";
+import {
+  FaUsers,
+  FaEnvelope,
+  FaCrown,
+  FaSignOutAlt,
+  FaChevronDown,
+  FaUser,
+} from "react-icons/fa";
+
+import { Brand } from "./UI";
+import { FiCompass } from "react-icons/fi";
 
 const NavBar = () => {
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [logoutError, setLogoutError] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleLogout = async () => {
     try {
-      await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
+      await axios.post(
+        BASE_URL + "/logout",
+        {},
+        { withCredentials: true }
+      );
+
       dispatch(removeUser());
       navigate("/login");
-    } catch (err) {
-      console.error(err);
+    } catch {
+      setLogoutError("Could not log out. Please try again.");
     }
   };
 
-  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
-  return (
-    <header className="fixed top-0 w-full bg-base-100 shadow-md z-50">
-      <nav className="max-w-7xl mx-auto px-6 sm:px-10 py-4 flex justify-between items-center">
-        {/* Brand Logo at Left */}
-        <Link
-          to="/"
-          className="text-3xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent select-none"
-        >
-          DevMatch
-        </Link>
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [location.pathname]);
 
-        {/* Only show user section if user is logged in */}
+  const navLinks = [
+    { label: "Discover", path: "/feed", icon: FiCompass },
+    { label: "Connections", path: "/connections", icon: FaUsers },
+    { label: "Requests", path: "/requests", icon: FaEnvelope },
+    { label: "Premium", path: "/premium", icon: FaCrown },
+  ];
+
+  return (
+    <header className="dm-app-nav fixed inset-x-0 top-0 z-50 border-b border-white/[0.07] bg-[#0B0D12]/95 shadow-[0_4px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+      <nav aria-label="Main navigation" className="dm-container flex h-[76px] items-center justify-between">
+
+        <Brand />
+
+        {/* Desktop Navigation */}
         {user && (
-          <div className="relative" ref={dropdownRef}>
+          <div className="hidden items-center gap-1 lg:flex">
+            {navLinks.map(({ label, path, icon: Icon }) => {
+              const isActive = location.pathname === path;
+
+              return (
+                <Link
+                  key={path}
+                  to={path}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-[13px] font-medium transition-colors ${
+                    isActive
+                      ? "bg-white/[0.07] text-white"
+                      : "text-[#969DAE] hover:bg-white/[0.04] hover:text-white"
+                  }`}
+                >
+                  <Icon
+                    className={`text-xs ${
+                      isActive
+                        ? "text-violet-300"
+                        : "text-[#737D91]"
+                    }`}
+                  />
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {!user && <Link className="dm-text-link" to="/signup">Join DevMatch</Link>}
+        {/* Profile Dropdown */}
+        {user && (
+          <div className="relative" ref={dropdownRef} onKeyDown={(event) => { if (event.key === "Escape") { setDropdownOpen(false); dropdownRef.current?.querySelector("button")?.focus(); } }}>
             <button
+              type="button"
               onClick={() => setDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-3 rounded-full border-2 border-base-300 hover:border-primary transition px-3 py-1 cursor-pointer select-none"
+              aria-expanded={dropdownOpen}
+              aria-label="Open profile menu"
+              className={`flex items-center gap-2.5 rounded-xl border px-2 py-1.5 transition-colors sm:gap-3 sm:px-3 ${
+                dropdownOpen
+                  ? "border-white/[0.13] bg-white/[0.06]"
+                  : "border-transparent hover:border-white/[0.08] hover:bg-white/[0.04]"
+              }`}
             >
-              <img
-                src={user.photoUrl}
-                alt="Profile"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <span className="hidden sm:inline font-semibold text-base-content">
+              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/[0.12] bg-[#211C35] text-sm font-semibold text-violet-200">
+                {user.photoUrl ? (
+                  <img
+                    src={user.photoUrl}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  user.firstName?.[0]?.toUpperCase() || "D"
+                )}
+              </div>
+
+              <span className="hidden max-w-[120px] truncate text-sm font-medium text-[#E7E9EF] sm:block">
                 {user.firstName}
               </span>
-              <svg
-                className={`w-4 h-4 ml-1 text-base-content transition-transform ${
-                  dropdownOpen ? "rotate-180" : "rotate-0"
+
+              <FaChevronDown
+                className={`hidden text-[10px] text-[#858DA0] transition-transform sm:block ${
+                  dropdownOpen ? "rotate-180" : ""
                 }`}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path>
-              </svg>
+              />
             </button>
 
-            {/* Dropdown */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-3 w-48 bg-base-100 border border-base-300 rounded-lg shadow-lg py-2 text-base-content z-50">
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 hover:bg-primary hover:text-primary-content transition rounded-md font-medium flex justify-between items-center"
-                >
-                  Profile
-                  <span className="text-xs bg-primary text-primary-content rounded-full px-2 py-0.5 ml-2 select-none">
-                    New
-                  </span>
-                </Link>
-                <Link
-                  to="/requests"
-                  className="block px-4 py-2 hover:bg-primary hover:text-primary-content transition rounded-md font-medium"
-                >
-                  Requests
-                </Link>
-                <Link
-                  to="/connections"
-                  className="block px-4 py-2 hover:bg-primary hover:text-primary-content transition rounded-md font-medium"
-                >
-                  Connections
-                </Link>
-                <Link
-                  to="/premium"
-                  className="block px-4 py-2 hover:bg-primary hover:text-primary-content transition rounded-md font-medium"
-                >
-                  Premium
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 transition rounded-md font-medium"
-                >
-                  Logout
-                </button>
+              <div className="absolute right-0 mt-3 w-60 overflow-hidden rounded-2xl border border-white/[0.09] bg-[#11141C] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+                <div className="border-b border-white/[0.07] px-3 py-3">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="mt-1 text-xs text-[#7F879A]">
+                    Developer account
+                  </p>
+                </div>
+
+                <div className="space-y-1 py-2">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#C3C9D6] transition-colors hover:bg-white/[0.05] hover:text-white"
+                  >
+                    <FaUser className="text-xs text-[#929AAF]" />
+                    Profile
+                  </Link>
+
+                  {navLinks.map(({ label, path, icon: Icon }) => (
+                    <Link
+                      key={path}
+                      to={path}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#C3C9D6] transition-colors hover:bg-white/[0.05] hover:text-white"
+                    >
+                      <Icon className="text-xs text-[#929AAF]" />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/[0.07] pt-2">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-300 transition-colors hover:bg-red-400/[0.08]"
+                  >
+                    <FaSignOutAlt className="text-xs" />
+                    Logout
+                  </button>
+                  {logoutError && <p role="alert" className="px-3 py-2 text-xs text-red-300">{logoutError}</p>}
+                </div>
               </div>
             )}
           </div>

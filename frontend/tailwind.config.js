@@ -1,16 +1,3 @@
-// import daisyui from 'daisyui';
-// /** @type {import('tailwindcss').Config} */
-
-// export default {
-//   content: ['./src/**/*.{html,js,jsx,tsx}'],
-//   theme: {
-//     extend: {},
-//   },
-//   plugins: [daisyui],
-// }
-
-import daisyui from "daisyui";
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
@@ -32,5 +19,5 @@ export default {
       },
     },
   },
-  plugins: [daisyui],
+  // DaisyUI is registered once in src/index.css with themes disabled.
 };

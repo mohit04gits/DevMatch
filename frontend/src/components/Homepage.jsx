@@ -1,78 +1,32 @@
-import { useNavigate } from "react-router-dom";
-import { FaUsers, FaHandshake, FaComments, FaLaptopCode } from "react-icons/fa";
-
-const features = [
-  {
-    icon: <FaUsers className="text-purple-600 w-8 h-8" />,
-    title: "Connect with Developers",
-    description:
-      "Find and connect with developers worldwide, expand your professional network.",
-  },
-  {
-    icon: <FaHandshake className="text-purple-600 w-8 h-8" />,
-    title: "Collaboration Made Easy",
-    description:
-      "Work together on projects, share ideas, and grow your skills through collaboration.",
-  },
-  {
-    icon: <FaComments className="text-purple-600 w-8 h-8" />,
-    title: "Instant Chat",
-    description:
-      "Communicate in real-time with your connections to stay updated and motivated.",
-  },
-  {
-    icon: <FaLaptopCode className="text-purple-600 w-8 h-8" />,
-    title: "Showcase Your Work",
-    description:
-      "Display your projects and skills to attract potential collaborators or employers.",
-  },
+﻿import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { FiArrowRight, FiCode, FiUsers, FiMessageSquare, FiArrowUpRight } from "react-icons/fi";
+import { Brand } from "./UI";
+import Footer from "./Footer";
+const steps = [
+  { icon: FiCode, title: "Let your work speak.", text: "Introduce yourself with a profile that puts your skills and interests first." },
+  { icon: FiUsers, title: "Find common ground.", text: "Discover developers, explore their tech stacks, and send a connection request." },
+  { icon: FiMessageSquare, title: "Start a conversation.", text: "Turn a connection into a conversation with real-time messaging." },
 ];
-
-const HomePage = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-tr from-purple-50 via-white to-purple-100 flex flex-col justify-center items-center px-6 py-20">
-      {/* Header */}
-      <h1 className="text-5xl font-extrabold text-purple-700 mb-6 text-center">
-        Welcome to <span className="text-purple-900">DevMatch</span>
-      </h1>
-
-      {/* Intro */}
-      <p className="max-w-xl text-center text-gray-700 text-lg mb-12">
-        DevMatch is your platform to connect, collaborate, and grow with
-        developers worldwide. Whether you want to build new projects, expand your
-        network, or showcase your skills, DevMatch makes it easy and fun!
-      </p>
-
-      {/* Features */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full mb-12">
-        {features.map(({ icon, title, description }, idx) => (
-          <div
-            key={idx}
-            className="bg-white rounded-xl shadow-md p-6 flex space-x-4 hover:shadow-xl transition-shadow duration-300"
-          >
-            <div className="flex items-center justify-center">{icon}</div>
-            <div>
-              <h3 className="text-xl font-semibold text-purple-800 mb-2">
-                {title}
-              </h3>
-              <p className="text-gray-600">{description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Get Started Button */}
-      <button
-        onClick={() => navigate("/login")}
-        className="bg-purple-700 hover:bg-purple-800 text-white font-bold py-4 px-12 rounded-full shadow-lg transition-colors duration-300"
-        aria-label="Get Started"
-      >
-        Get Started
-      </button>
-    </div>
-  );
-};
-
-export default HomePage;
+export default function HomePage() {
+  const user = useSelector((store) => store.user);
+  return <div className="dm-landing">
+    <a className="dm-skip" href="#main-content">Skip to content</a>
+    <header className="dm-public-header"><nav className="dm-container"><Brand /><a href="#how-it-works" className="dm-public-about">How it works</a><div className="dm-inline"><Link to={user ? "/feed" : "/login"} className="dm-text-link">{user ? "Your workspace" : "Log in"}</Link><Link to={user ? "/profile" : "/signup"} className="dm-button dm-button-small">{user ? "Your profile" : "Get started"}<FiArrowUpRight /></Link></div></nav></header>
+    <main id="main-content">
+      <section className="dm-hero dm-container">
+        <div className="dm-hero-copy"><p className="dm-eyebrow"><span className="dm-status-dot" /> A NETWORK FOR THE PEOPLE WHO BUILD</p><h1>Find your people.<br /><span>Build what’s next.</span></h1><p className="dm-hero-description">Good code starts with an idea.<br />Great things start with the right people.</p><p className="dm-muted">Connect with developers who share your ambition, discover meaningful collaborations, and grow your network.</p><div className="dm-hero-actions"><Link to={user ? "/feed" : "/signup"} className="dm-button">{user ? "Discover developers" : "Find your people"}<FiArrowRight /></Link><a href="#how-it-works" className="dm-button dm-button-secondary">See how it works</a></div><p className="dm-hero-footnote">Your skills. Your interests. Your next connection.</p></div>
+        <div className="dm-network-visual" aria-label="Discover, connect, and start a conversation">
+          <div className="dm-orbit dm-orbit-one" /><div className="dm-orbit dm-orbit-two" />
+          <div className="dm-network-center"><FiCode /><span>devmatch</span></div>
+          <div className="dm-network-node dm-node-one"><FiCode /><div><small>01 / DISCOVER</small><strong>A shared curiosity.</strong></div></div>
+          <div className="dm-network-node dm-node-two"><FiUsers /><div><small>02 / CONNECT</small><strong>A new perspective.</strong></div></div>
+          <div className="dm-network-node dm-node-three"><FiMessageSquare /><div><small>03 / CONVERSATION</small><strong>A simple hello.</strong></div></div>
+          <div className="dm-visual-caption"><span /> Built around connection.</div>
+        </div>
+      </section>
+      <section id="how-it-works" className="dm-how dm-container"><div className="dm-section-title"><p className="dm-eyebrow">LESS NOISE. MORE CONNECTION.</p><h2>There’s a person behind every commit.</h2><p className="dm-muted">Get to know the developers you could build with.</p></div><div className="dm-feature-grid">{steps.map(({icon: Icon, title, text}, index) => <article key={title} className="dm-feature"><div className="dm-feature-top"><Icon /><span>0{index + 1}</span></div><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+      <section className="dm-cta dm-container"><div><p className="dm-eyebrow">MAKE YOUR NEXT CONNECTION</p><h2>Your next “hello” could lead somewhere.</h2></div><Link to={user ? "/feed" : "/signup"} className="dm-button">Let’s find out <FiArrowRight /></Link></section>
+    </main><Footer />
+  </div>;
+}

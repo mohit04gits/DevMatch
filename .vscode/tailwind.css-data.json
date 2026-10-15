@@ -1,0 +1,10 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    { "name": "@config", "description": "Loads a JavaScript configuration file into Tailwind CSS." },
+    { "name": "@plugin", "description": "Registers a Tailwind CSS plugin, such as DaisyUI." }
+  ],
+  "properties": [
+    { "name": "themes", "description": "DaisyUI plugin option controlling which themes are generated." }
+  ]
+}

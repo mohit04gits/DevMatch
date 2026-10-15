@@ -1,3 +1,7 @@
+const dns = require("node:dns");
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 const mongoose = require("mongoose");
 // not the good way of connecting to the database
 //-----------------------------------------------------------------
